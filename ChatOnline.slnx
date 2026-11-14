@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/Shared/">
+    <Project Path="SharedLibrary/SharedLibrary.csproj" />
+  </Folder>
+  <Project Path="ChatOnlineApi/ChatOnlineApi.csproj" />
+</Solution>
