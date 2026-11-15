@@ -32,7 +32,6 @@
     <Folder Include="Infrastructure\Caching\" />
     <Folder Include="Infrastructure\Messaging\" />
     <Folder Include="Infrastructure\Persistence\Contexts\" />
-    <Folder Include="Infrastructure\Security\" />
     <Folder Include="Infrastructure\Workers\" />
     <Folder Include="Resources\Application\Services\" />
   </ItemGroup>

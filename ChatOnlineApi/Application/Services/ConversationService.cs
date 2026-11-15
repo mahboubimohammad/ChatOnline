@@ -132,7 +132,7 @@ public class ConversationService(
     {
         try
         {
-            if (pageSize <= 0 || pageNumber <= 0)
+              if(pageNumber <= 0 || pageSize <= 0 )
                 return ServiceResult<object>.Fail("اطلاعات صفحه‌بندی معتبر نیست", 400);
 
             var query = _conversations.Get();
