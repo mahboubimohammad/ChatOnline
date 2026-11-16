@@ -13,32 +13,6 @@ namespace ChatOnlineApi.Presentation.Areas.Backoffice.Controllers;
 public class ConversationTypeController(
     IConversationTypeService _conversationType) : ControllerBase
 {
-    /// <summary>
-    /// اضافه کردن نوع گفتگو
-    /// </summary>
-    [HttpPost("Add")]
-    [Authorize(Policy = "BackofficeBearerPolicy")]
-    public async Task<IActionResult> Add(
-        [FromBody] AddConversationTypeRequest request)
-        => this.ToActionResult(await _conversationType.AddAsync(request));
-
-    /// <summary>
-    /// ویرایش نوع گفتگو
-    /// </summary>
-    [HttpPost("Edit")]
-    [Authorize(Policy = "BackofficeBearerPolicy")]
-    public async Task<IActionResult> Edit(
-        [FromBody] EditConversationTypeRequest request)
-        => this.ToActionResult(await _conversationType.EditAsync(request));
-
-    /// <summary>
-    /// حذف نوع گفتگو
-    /// </summary>
-    [HttpGet("Delete")]
-    [Authorize(Policy = "BackofficeBearerPolicy")]
-    public async Task<IActionResult> Delete(
-        [FromHeader] int conversationTypeId)
-        => this.ToActionResult(await _conversationType.DeleteAsync(conversationTypeId));
 
     /// <summary>
     /// دریافت اطلاعات یک نوع گفتگو
@@ -49,13 +23,5 @@ public class ConversationTypeController(
         [FromHeader] int conversationTypeId)
         => this.ToActionResult(await _conversationType.GetAsync(conversationTypeId));
 
-    /// <summary>
-    /// دریافت لیست انواع گفتگو
-    /// </summary>
-    [HttpPost("GetAll")]
-    [Authorize(Policy = "BackofficeBearerPolicy")]
-    public async Task<IActionResult> GetAll([FromBody] ShowConversationTypeRequest request,[FromHeader] int pageSize,[FromHeader] int pageNumber)
-        => this.ToActionResult(
-            await _conversationType.GetAllAsync(request, pageSize, pageNumber));
 }
 

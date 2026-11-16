@@ -24,7 +24,6 @@ public partial class ChatOnlineDbContext : DbContext
 
     public virtual DbSet<MessageAttachment> MessageAttachments { get; set; }
 
-    public virtual DbSet<MessageMention> MessageMentions { get; set; }
 
     public virtual DbSet<MessageReaction> MessageReactions { get; set; }
 
@@ -111,12 +110,6 @@ public partial class ChatOnlineDbContext : DbContext
                 .HasConstraintName("FK_MessageAttachments_Messages");
         });
 
-        modelBuilder.Entity<MessageMention>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__MessageM__3214EC071930FF36");
-
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())", "DF_MessageMentions_CreatedAt");
-        });
 
         modelBuilder.Entity<MessageReaction>(entity =>
         {
