@@ -1,10 +1,12 @@
-﻿using ChatOnlineApi.Application.Contracts;
+﻿
+using ChatOnlineApi.Application.Contracts;
 using ChatOnlineApi.Domain.Base;
 using ChatOnlineApi.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SharedLibrary.Common;
 using SharedLibrary.Helpers;
+
 using static ChatOnlineApi.Application.DTOs.MessageDtos;
 
 namespace ChatOnlineApi.Application.Services;
@@ -78,7 +80,8 @@ public class MessageService(
                 .FirstOrDefaultAsync();
 
             if (savedMessage == null)
-                return ServiceResult<object>.Fail("پیام ثبت شد اما دریافت اطلاعات آن ناموفق بود", 500);
+                return ServiceResult<object>.Fail(
+                    "پیام ثبت شد اما دریافت اطلاعات آن ناموفق بود", 500);
 
             var response = new ShowMessageResponse
             {
@@ -203,15 +206,13 @@ public class MessageService(
         }
     }
 
-    public async Task<ServiceResult<object>> GetAllAsync(
-        ShowMessageRequest filter,
-        int pageSize,
-        int pageNumber)
+    public async Task<ServiceResult<object>> GetAllAsync(ShowMessageRequest filter,int pageSize,int pageNumber)
     {
         try
         {
             if (pageSize <= 0 || pageNumber <= 0)
-                return ServiceResult<object>.Fail("اطلاعات صفحه‌بندی معتبر نیست", 400);
+                return ServiceResult<object>.Fail(
+                    "اطلاعات صفحه‌بندی معتبر نیست", 400);
 
             var query = _messages.Get(x => x.DeletedAt == null);
 

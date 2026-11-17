@@ -20,8 +20,6 @@ public partial class ChatOnlineDbContext : DbContext
 
     public virtual DbSet<MessageType> MessageTypes { get; set; }
 
-    public virtual DbSet<Notification> Notifications { get; set; }
-
     public virtual DbSet<ReactionType> ReactionTypes { get; set; }
 
     public virtual DbSet<SupportAgent> SupportAgents { get; set; }
@@ -32,6 +30,7 @@ public partial class ChatOnlineDbContext : DbContext
     {
         modelBuilder.Entity<Conversation>(entity =>
         {
+            entity.Property(e => e.ConversationTypeId).HasDefaultValue(1, "DF_Conversations_ConversationTypeId");
             entity.Property(e => e.IsActive).HasDefaultValue(true, "DF_Conversation_IsActive");
 
             entity.HasOne(d => d.SupportAgent).WithMany(p => p.Conversations).HasConstraintName("FK_Conversations_SupportAgents");
@@ -66,15 +65,6 @@ public partial class ChatOnlineDbContext : DbContext
         modelBuilder.Entity<MessageType>(entity =>
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
-        });
-
-        modelBuilder.Entity<Notification>(entity =>
-        {
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())", "DF_Notifications_CreatedAt");
-
-            entity.HasOne(d => d.Conversation).WithMany(p => p.Notifications).HasConstraintName("FK_Notifications_Conversations");
-
-            entity.HasOne(d => d.Message).WithMany(p => p.Notifications).HasConstraintName("FK_Notifications_Messages");
         });
 
         modelBuilder.Entity<SupportAgent>(entity =>

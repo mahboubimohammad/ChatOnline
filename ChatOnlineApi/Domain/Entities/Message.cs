@@ -18,10 +18,12 @@ public partial class Message
 
     public int SenderId { get; set; }
 
+    [StringLength(200)]
+    public string? SenderName { get; set; }
+
     public string Text { get; set; } = null!;
 
-    [Column(TypeName = "datetime")]
-    public DateTime CreatedAt { get; set; }
+    public int? MessageReactionId { get; set; }
 
     public int? ReplyToMessageId { get; set; }
 
@@ -33,16 +35,16 @@ public partial class Message
     [Column(TypeName = "datetime")]
     public DateTime? EditedAt { get; set; }
 
-    [StringLength(200)]
-    public string? SenderName { get; set; }
-
     [Column(TypeName = "datetime")]
     public DateTime? ReadAt { get; set; }
 
     [Column(TypeName = "datetime")]
     public DateTime? DeliveredAt { get; set; }
 
-    public int? MessageReactionId { get; set; }
+    [Column(TypeName = "datetime")]
+    public DateTime CreatedAt { get; set; }
+
+    public string? Attachments { get; set; }
 
     [ForeignKey("ConversationId")]
     [InverseProperty("Messages")]
@@ -61,9 +63,6 @@ public partial class Message
     [ForeignKey("MessageTypeId")]
     [InverseProperty("Messages")]
     public virtual MessageType MessageType { get; set; } = null!;
-
-    [InverseProperty("Message")]
-    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     [ForeignKey("ReplyToMessageId")]
     [InverseProperty("InverseReplyToMessage")]

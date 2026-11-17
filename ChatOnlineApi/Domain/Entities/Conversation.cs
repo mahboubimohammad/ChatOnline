@@ -29,6 +29,8 @@ public partial class Conversation
 
     public bool IsActive { get; set; }
 
+    public int ConversationTypeId { get; set; }
+
     [StringLength(200)]
     public string? Title { get; set; }
 
@@ -40,9 +42,6 @@ public partial class Conversation
 
     [InverseProperty("Conversation")]
     public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
-
-    [InverseProperty("Conversation")]
-    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     [ForeignKey("SupportAgentId")]
     [InverseProperty("Conversations")]

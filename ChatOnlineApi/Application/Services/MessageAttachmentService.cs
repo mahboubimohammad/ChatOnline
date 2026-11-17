@@ -2,8 +2,10 @@
 using ChatOnlineApi.Application.Contracts;
 using ChatOnlineApi.Domain.Base;
 using ChatOnlineApi.Domain.Interfaces;
+using ChatOnlineApi.Infrastructure.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SharedLibrary.Common;
 using SharedLibrary.Helpers;
 using static ChatOnlineApi.Application.DTOs.MessageAttachmentDtos;
@@ -14,51 +16,82 @@ public class MessageAttachmentService(
     IUnitOfWork _unitOfWork,
     IMessageAttachmentRepository _attachments,
     IMessageRepository _messages,
-    ILogger<MessageAttachmentService> _logger) : IMessageAttachmentService
+    ILogger<MessageAttachmentService> _logger,
+    IOptions<FileUploadOptions> _fileUploadOptions) : IMessageAttachmentService
 {
-    public async Task<ServiceResult<object>> AddAsync(AddMessageAttachmentRequest request)
+    public async Task<ServiceResult<object>> AddAsync(
+        AddMessageAttachmentRequest request)
     {
         try
         {
-            if (request == null ||
-                request.MessageId <= 0 ||
-                string.IsNullOrWhiteSpace(request.FileUrl) ||
-                string.IsNullOrWhiteSpace(request.FileName) ||
-                request.FileSize <= 0 ||
-                string.IsNullOrWhiteSpace(request.ContentType))
-            {
-                return ServiceResult<object>.Fail("اطلاعات فایل پیوست معتبر نیست", 400);
-            }
+            if (request == null || request.MessageId <= 0)
+                return ServiceResult<object>.Fail(
+                    "اطلاعات ارسالی معتبر نیست", 400);
+
+            if (request.Files == null || request.Files.Count == 0)
+                return ServiceResult<object>.Fail(
+                    "حداقل یک فایل انتخاب کنید", 400);
 
             var messageExists = await _messages
                 .Get(x => x.Id == request.MessageId && x.DeletedAt == null)
                 .AnyAsync();
 
             if (!messageExists)
-                return ServiceResult<object>.Fail("پیام موردنظر پیدا نشد", 404);
+                return ServiceResult<object>.Fail(
+                    "پیام موردنظر پیدا نشد", 404);
 
-            var attachment = new Domain.Entities.MessageAttachment
+            var settings = _fileUploadOptions.Value;
+
+            if (settings.MaxFileSizeMB <= 0 ||
+                settings.MaxRequestSizeMB <= 0 ||
+                settings.AllowedExtensions == null ||
+                settings.AllowedExtensions.Count == 0)
             {
+                return ServiceResult<object>.Fail(
+                    "تنظیمات آپلود فایل معتبر نیست", 500);
+            }
+
+            long maxFileSize =
+                settings.MaxFileSizeMB * 1024L * 1024L;
+
+            long maxRequestSize =
+                settings.MaxRequestSizeMB * 1024L * 1024L;
+
+            long totalSize = 0;
+
+            foreach (var file in request.Files)
+            {
+                if (file == null || file.Length <= 0)
+                    return ServiceResult<object>.Fail(
+                        "یکی از فایل‌های انتخاب‌شده معتبر نیست", 400);
+
+                if (file.Length > maxFileSize)
+                    return ServiceResult<object>.Fail(
+                        "حجم یکی از فایل‌ها بیشتر از حد مجاز است", 400);
+
+                var extension = Path.GetExtension(file.FileName);
+
+                if (!settings.AllowedExtensions.Contains(
+                    extension,
+                    StringComparer.OrdinalIgnoreCase))
+                {
+                    return ServiceResult<object>.Fail(
+                        "فرمت یکی از فایل‌ها مجاز نیست", 400);
+                }
+
+                totalSize += file.Length;
+
+                if (totalSize > maxRequestSize)
+                    return ServiceResult<object>.Fail(
+                        "حجم مجموع فایل‌ها بیشتر از حد مجاز است", 400);
+            }
+
+            return ServiceResult<object>.Ok(new
+            {
+                Message = "فایل‌ها با موفقیت دریافت و اعتبارسنجی شدند",
                 MessageId = request.MessageId,
-                FileUrl = request.FileUrl.Trim(),
-                FileName = request.FileName.Trim(),
-                FileSize = request.FileSize,
-                ContentType = request.ContentType.Trim(),
-                CreatedAt = DateTime.Now
-            };
-
-            await _attachments.CreateAsync(attachment);
-            await _unitOfWork.SaveChangesAsync();
-
-            return ServiceResult<object>.Ok(new ShowMessageAttachmentResponse
-            {
-                Id = attachment.Id,
-                MessageId = attachment.MessageId,
-                FileUrl = attachment.FileUrl,
-                FileName = attachment.FileName,
-                FileSize = attachment.FileSize,
-                ContentType = attachment.ContentType,
-                CreatedAt = DateHelpers.ToPersianDate(attachment.CreatedAt)
+                FileCount = request.Files.Count,
+                TotalSize = totalSize
             });
         }
         catch (Exception ex)
@@ -70,7 +103,8 @@ public class MessageAttachmentService(
         }
     }
 
-    public async Task<ServiceResult<object>> EditAsync(EditMessageAttachmentRequest request)
+    public async Task<ServiceResult<object>> EditAsync(
+        EditMessageAttachmentRequest request)
     {
         try
         {
@@ -78,7 +112,8 @@ public class MessageAttachmentService(
                 request.Id <= 0 ||
                 string.IsNullOrWhiteSpace(request.FileName))
             {
-                return ServiceResult<object>.Fail("اطلاعات ارسالی معتبر نیست", 400);
+                return ServiceResult<object>.Fail(
+                    "اطلاعات ارسالی معتبر نیست", 400);
             }
 
             var attachment = await _attachments
@@ -86,23 +121,26 @@ public class MessageAttachmentService(
                 .FirstOrDefaultAsync();
 
             if (attachment == null)
-                return ServiceResult<object>.Fail("فایل پیوست پیدا نشد", 404);
+                return ServiceResult<object>.Fail(
+                    "فایل پیوست پیدا نشد", 404);
 
             attachment.FileName = request.FileName.Trim();
 
             await _attachments.UpdateAsync(attachment);
             await _unitOfWork.SaveChangesAsync();
 
-            return ServiceResult<object>.Ok(new ShowMessageAttachmentResponse
-            {
-                Id = attachment.Id,
-                MessageId = attachment.MessageId,
-                FileUrl = attachment.FileUrl,
-                FileName = attachment.FileName,
-                FileSize = attachment.FileSize,
-                ContentType = attachment.ContentType,
-                CreatedAt = DateHelpers.ToPersianDate(attachment.CreatedAt)
-            });
+            return ServiceResult<object>.Ok(
+                new ShowMessageAttachmentResponse
+                {
+                    Id = attachment.Id,
+                    MessageId = attachment.MessageId,
+                    FileUrl = attachment.FileUrl,
+                    FileName = attachment.FileName,
+                    FileSize = attachment.FileSize,
+                    ContentType = attachment.ContentType,
+                    CreatedAt = DateHelpers.ToPersianDate(
+                        attachment.CreatedAt)
+                });
         }
         catch (Exception ex)
         {
@@ -118,19 +156,22 @@ public class MessageAttachmentService(
         try
         {
             if (attachmentId <= 0)
-                return ServiceResult<object>.Fail("شناسه فایل پیوست معتبر نیست", 400);
+                return ServiceResult<object>.Fail(
+                    "شناسه فایل پیوست معتبر نیست", 400);
 
             var attachment = await _attachments
                 .Get(x => x.Id == attachmentId)
                 .FirstOrDefaultAsync();
 
             if (attachment == null)
-                return ServiceResult<object>.Fail("فایل پیوست پیدا نشد", 404);
+                return ServiceResult<object>.Fail(
+                    "فایل پیوست پیدا نشد", 404);
 
             await _attachments.RemoveAsync(attachment);
             await _unitOfWork.SaveChangesAsync();
 
-            return ServiceResult<object>.Ok("فایل پیوست با موفقیت حذف شد");
+            return ServiceResult<object>.Ok(
+                "فایل پیوست با موفقیت حذف شد");
         }
         catch (Exception ex)
         {
@@ -149,23 +190,28 @@ public class MessageAttachmentService(
         try
         {
             if (pageSize <= 0 || pageNumber <= 0)
-                return ServiceResult<object>.Fail("اطلاعات صفحه‌بندی معتبر نیست", 400);
+                return ServiceResult<object>.Fail(
+                    "اطلاعات صفحه‌بندی معتبر نیست", 400);
 
             var query = _attachments.Get();
 
             if (filter != null)
             {
                 if (filter.Ids?.Any() == true)
-                    query = query.Where(x => filter.Ids.Contains(x.Id));
+                    query = query.Where(
+                        x => filter.Ids.Contains(x.Id));
 
                 if (filter.MessageId.HasValue)
-                    query = query.Where(x => x.MessageId == filter.MessageId.Value);
+                    query = query.Where(
+                        x => x.MessageId == filter.MessageId.Value);
 
                 if (!string.IsNullOrWhiteSpace(filter.FileName))
-                    query = query.Where(x => x.FileName.Contains(filter.FileName));
+                    query = query.Where(
+                        x => x.FileName.Contains(filter.FileName));
 
                 if (!string.IsNullOrWhiteSpace(filter.ContentType))
-                    query = query.Where(x => x.ContentType == filter.ContentType);
+                    query = query.Where(
+                        x => x.ContentType == filter.ContentType);
             }
 
             var totalCount = await query.CountAsync();
@@ -176,18 +222,25 @@ public class MessageAttachmentService(
                 .Take(pageSize)
                 .ToListAsync();
 
-            var response = attachments.Select(x => new ShowMessageAttachmentResponse
-            {
-                Id = x.Id,
-                MessageId = x.MessageId,
-                FileUrl = x.FileUrl,
-                FileName = x.FileName,
-                FileSize = x.FileSize,
-                ContentType = x.ContentType,
-                CreatedAt = DateHelpers.ToPersianDate(x.CreatedAt)
-            }).ToList();
+            var response = attachments.Select(x =>
+                new ShowMessageAttachmentResponse
+                {
+                    Id = x.Id,
+                    MessageId = x.MessageId,
+                    FileUrl = x.FileUrl,
+                    FileName = x.FileName,
+                    FileSize = x.FileSize,
+                    ContentType = x.ContentType,
+                    CreatedAt = DateHelpers.ToPersianDate(x.CreatedAt)
+                }).ToList();
 
-            return ServiceResult<object>.Ok(new{TotalCount = totalCount,PageSize = pageSize,PageNumber = pageNumber,Data = response});
+            return ServiceResult<object>.Ok(new
+            {
+                TotalCount = totalCount,
+                PageSize = pageSize,
+                PageNumber = pageNumber,
+                Data = response
+            });
         }
         catch (Exception ex)
         {
@@ -203,14 +256,16 @@ public class MessageAttachmentService(
         try
         {
             if (attachmentId <= 0)
-                return ServiceResult<object>.Fail("شناسه فایل پیوست معتبر نیست", 400);
+                return ServiceResult<object>.Fail(
+                    "شناسه فایل پیوست معتبر نیست", 400);
 
             var attachment = await _attachments
                 .Get(x => x.Id == attachmentId)
                 .FirstOrDefaultAsync();
 
             if (attachment == null)
-                return ServiceResult<object>.Fail("فایل پیوست پیدا نشد", 404);
+                return ServiceResult<object>.Fail(
+                    "فایل پیوست پیدا نشد", 404);
 
             var response = new ShowMessageAttachmentResponse
             {
@@ -220,7 +275,8 @@ public class MessageAttachmentService(
                 FileName = attachment.FileName,
                 FileSize = attachment.FileSize,
                 ContentType = attachment.ContentType,
-                CreatedAt = DateHelpers.ToPersianDate(attachment.CreatedAt)
+                CreatedAt = DateHelpers.ToPersianDate(
+                    attachment.CreatedAt)
             };
 
             return ServiceResult<object>.Ok(response);

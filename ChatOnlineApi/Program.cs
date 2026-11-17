@@ -1,3 +1,4 @@
+
 using ChatOnlineApi.Application.Services;
 using ChatOnlineApi.Domain.Base;
 using ChatOnlineApi.Infrastructure.Base;
@@ -5,6 +6,7 @@ using ChatOnlineApi.Infrastructure.Configuration;
 using ChatOnlineApi.Infrastructure.Persistence.Contexts;
 using ChatOnlineApi.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -14,7 +16,47 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ---------- File Upload Configuration ----------
+
+var fileUploadSettings = builder.Configuration
+    .GetSection("FileUpload")
+    .Get<FileUploadOptions>();
+
+if (fileUploadSettings == null ||
+    fileUploadSettings.MaxFileSizeMB <= 0 ||
+    fileUploadSettings.MaxRequestSizeMB <= 0 ||
+    string.IsNullOrWhiteSpace(fileUploadSettings.UploadPath) ||
+    fileUploadSettings.AllowedExtensions == null ||
+    fileUploadSettings.AllowedExtensions.Count == 0)
+{
+    throw new InvalidOperationException(
+        "FileUpload configuration is invalid or missing.");
+}
+
+if (fileUploadSettings.MaxRequestSizeMB < fileUploadSettings.MaxFileSizeMB)
+{
+    throw new InvalidOperationException(
+        "MaxRequestSizeMB cannot be smaller than MaxFileSizeMB.");
+}
+
+builder.Services.Configure<FileUploadOptions>(
+    builder.Configuration.GetSection("FileUpload"));
+
+var maxRequestSize =
+    fileUploadSettings.MaxRequestSizeMB * 1024L * 1024L;
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = maxRequestSize;
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = maxRequestSize;
+});
+
 // ---------- Serilog ----------
+
 builder.Logging.ClearProviders();
 
 var seriLogSettings = builder.Configuration
@@ -62,10 +104,12 @@ builder.Host.UseSerilog(Log.Logger);
 Log.Warning("Application starting...");
 
 // ---------- Configurations ----------
+
 builder.Services.Configure<LogOptions>(
     builder.Configuration.GetSection("SeriLog"));
 
 // ---------- DbContext ----------
+
 var connectionString = builder.Configuration
     .GetConnectionString("ChatOnlineDb")
     ?? builder.Configuration.GetConnectionString("DefaultConnection");
@@ -80,6 +124,7 @@ builder.Services.AddDbContext<ChatOnlineDbContext>(
     options => options.UseSqlServer(connectionString));
 
 // ---------- Generic Repository & Unit Of Work ----------
+
 builder.Services.AddScoped(
     typeof(IGenericRepository<>),
     typeof(GenericRepository<>));
@@ -89,6 +134,7 @@ builder.Services.AddScoped<
     UnitOfWork<ChatOnlineDbContext>>();
 
 // ---------- Specific Repositories ----------
+
 var repositoryAssembly = typeof(ConversationRepository).Assembly;
 
 var repositoryTypes = repositoryAssembly.GetTypes()
@@ -114,6 +160,7 @@ foreach (var repositoryType in repositoryTypes)
 }
 
 // ---------- Application Services ----------
+
 var serviceAssembly = typeof(ConversationService).Assembly;
 
 var serviceTypes = serviceAssembly.GetTypes()
@@ -121,7 +168,8 @@ var serviceTypes = serviceAssembly.GetTypes()
         type.IsClass &&
         !type.IsAbstract &&
         type.Namespace ==
-        "ChatOnlineApi.Application.Services");
+        "ChatOnlineApi.Application.Services" &&
+        type.Name != "MessageAttachmentService");
 
 foreach (var serviceType in serviceTypes)
 {
@@ -139,6 +187,7 @@ foreach (var serviceType in serviceTypes)
 }
 
 // ---------- JWT Configuration ----------
+
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 
 var jwtKey = jwtSettings["JwtKey"];
@@ -168,6 +217,7 @@ var jwtKeySecurity = new SymmetricSecurityKey(
     Encoding.UTF8.GetBytes(jwtKey));
 
 // ---------- JWT Authentication ----------
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -192,6 +242,7 @@ builder.Services
     });
 
 // ---------- Authorization ----------
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("BackofficeBearerPolicy", policy =>
@@ -201,15 +252,16 @@ builder.Services.AddAuthorization(options =>
 });
 
 // ---------- Controllers & Localization ----------
+
 builder.Services.AddLocalization();
 
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddHttpContextAccessor();
 
 // ---------- Swagger ----------
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("backoffice", new OpenApiInfo
@@ -247,9 +299,11 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // ---------- Build App ----------
+
 var app = builder.Build();
 
 // ---------- Localization ----------
+
 var supportedCultures = new[] { "fa-IR" };
 
 var localizationOptions = new RequestLocalizationOptions()

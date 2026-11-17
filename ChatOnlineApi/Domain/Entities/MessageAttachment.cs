@@ -14,17 +14,18 @@ public partial class MessageAttachment
 
     public int MessageId { get; set; }
 
-    [StringLength(1000)]
-    public string FileUrl { get; set; } = null!;
-
     [StringLength(255)]
     public string FileName { get; set; } = null!;
 
+    [StringLength(500)]
+    public string FileUrl { get; set; } = null!;
+
     public long FileSize { get; set; }
 
-    [StringLength(100)]
+    [StringLength(150)]
     public string ContentType { get; set; } = null!;
 
+    [Column(TypeName = "datetime")]
     public DateTime CreatedAt { get; set; }
 
     [ForeignKey("MessageId")]

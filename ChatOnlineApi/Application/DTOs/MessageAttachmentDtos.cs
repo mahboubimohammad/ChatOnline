@@ -1,4 +1,5 @@
-﻿
+﻿using Microsoft.AspNetCore.Http;
+
 namespace ChatOnlineApi.Application.DTOs;
 
 public class MessageAttachmentDtos
@@ -6,10 +7,7 @@ public class MessageAttachmentDtos
     public class AddMessageAttachmentRequest
     {
         public int MessageId { get; set; }
-        public string? FileUrl { get; set; }
-        public string? FileName { get; set; }
-        public long FileSize { get; set; }
-        public string? ContentType { get; set; }
+        public List<IFormFile>? Files { get; set; }
     }
 
     public class EditMessageAttachmentRequest

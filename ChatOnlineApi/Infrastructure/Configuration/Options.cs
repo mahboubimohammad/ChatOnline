@@ -1,4 +1,5 @@
-﻿namespace ChatOnlineApi.Infrastructure.Configuration;
+﻿
+namespace ChatOnlineApi.Infrastructure.Configuration;
 
 public class JwtOptions
 {
@@ -30,10 +31,12 @@ public class LogOptions
 {
     public bool InsertLog { get; set; } = false;
 }
+
 public sealed class YaghutOptions
 {
     /// <summary>"Soap" (default) or "Rest" — selects which IYaghutService implementation is used.</summary>
     public string Protocol { get; set; } = "Soap";
+
     public string RestBaseUrl { get; set; } = string.Empty;
 
     /// <summary>
@@ -58,10 +61,27 @@ public sealed class YaghutOptions
         ["YaghutInquirySayadChequeReceiversName"] = "sayadCheque/inquiryChequeReceiversName",
         ["YaghutGetDepositBySayadId"] = "sayadCheque/getDepositBySayadId"
     };
+
     public string ServiceUrl { get; set; } = "https://yaghut.day24.ir/yaghut/soap/soap_dey";
+
     public string Username { get; set; } = string.Empty;
+
     public string Password { get; set; } = string.Empty;
+
     public string CertificatePath { get; set; } = "Resources/Certificates/yaghout-10.5.34.29-client.p12";
+
     public string CertificatePassword { get; set; } = string.Empty;
+
     public int TokenAliveInMinutes { get; set; } = 10;
+}
+
+public class FileUploadOptions
+{
+    public string UploadPath { get; set; } = string.Empty;
+
+    public long MaxFileSizeMB { get; set; }
+
+    public long MaxRequestSizeMB { get; set; }
+
+    public List<string> AllowedExtensions { get; set; } = [];
 }
