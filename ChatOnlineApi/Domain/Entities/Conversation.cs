@@ -11,6 +11,16 @@ public partial class Conversation
     [Key]
     public int Id { get; set; }
 
+    public int? UserId { get; set; }
+
+    public int? SupportAgentId { get; set; }
+
+    [StringLength(200)]
+    public string? SupportAgentName { get; set; }
+
+    [StringLength(200)]
+    public string? CreatedByName { get; set; }
+
     [Column(TypeName = "datetime")]
     public DateTime CreatedAt { get; set; }
 
@@ -19,22 +29,22 @@ public partial class Conversation
 
     public bool IsActive { get; set; }
 
-    public int ConversationTypeId { get; set; }
-
     [StringLength(200)]
     public string? Title { get; set; }
 
     [StringLength(1000)]
     public string? Description { get; set; }
 
-    [StringLength(1000)]
-    public string? ImageUrl { get; set; }
-
-    public int? CreatedBy { get; set; }
-
     [Column(TypeName = "datetime")]
     public DateTime? UpdatedAt { get; set; }
 
     [InverseProperty("Conversation")]
+    public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
+
+    [InverseProperty("Conversation")]
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+    [ForeignKey("SupportAgentId")]
+    [InverseProperty("Conversations")]
+    public virtual SupportAgent? SupportAgent { get; set; }
 }

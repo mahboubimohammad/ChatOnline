@@ -15,6 +15,6 @@ public partial class ReactionType
     [StringLength(50)]
     public string Title { get; set; } = null!;
 
-    [InverseProperty("ReactionType")]
-    public virtual ICollection<MessageReaction> MessageReactions { get; set; } = new List<MessageReaction>();
+    [InverseProperty("MessageReaction")]
+    public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
 }

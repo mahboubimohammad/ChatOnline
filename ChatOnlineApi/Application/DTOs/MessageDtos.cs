@@ -7,9 +7,11 @@ public class MessageDtos
     {
         public int ConversationId { get; set; }
         public int SenderId { get; set; }
+        public string? SenderName { get; set; }
         public string? Text { get; set; }
         public int MessageTypeId { get; set; }
         public int? ReplyToMessageId { get; set; }
+        public int? MessageReactionId { get; set; }
     }
 
     public class EditMessageRequest
@@ -24,6 +26,7 @@ public class MessageDtos
         public int? ConversationId { get; set; }
         public int? SenderId { get; set; }
         public int? MessageTypeId { get; set; }
+        public int? MessageReactionId { get; set; }
         public string? Text { get; set; }
     }
 
@@ -32,11 +35,16 @@ public class MessageDtos
         public int? Id { get; set; }
         public int? ConversationId { get; set; }
         public int? SenderId { get; set; }
+        public string? SenderName { get; set; }
         public string? Text { get; set; }
         public string? CreatedAt { get; set; }
         public int? ReplyToMessageId { get; set; }
         public int? MessageTypeId { get; set; }
         public string? MessageTypeTitle { get; set; }
+        public int? MessageReactionId { get; set; }
+        public string? MessageReactionTitle { get; set; }
+        public string? DeliveredAt { get; set; }
+        public string? ReadAt { get; set; }
         public string? DeletedAt { get; set; }
         public string? EditedAt { get; set; }
     }

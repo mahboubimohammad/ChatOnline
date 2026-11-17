@@ -21,4 +21,7 @@ public partial class SupportAgent
 
     [Column(TypeName = "datetime")]
     public DateTime CreatedAt { get; set; }
+
+    [InverseProperty("SupportAgent")]
+    public virtual ICollection<Conversation> Conversations { get; set; } = new List<Conversation>();
 }

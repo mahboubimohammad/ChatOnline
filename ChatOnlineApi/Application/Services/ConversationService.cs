@@ -19,14 +19,21 @@ public class ConversationService(
     {
         try
         {
-            if (request == null || request.ConversationTypeId <= 0)
+            if (request == null ||
+                !request.UserId.HasValue || request.UserId.Value <= 0 ||
+                !request.SupportAgentId.HasValue || request.SupportAgentId.Value <= 0)
+            {
                 return ServiceResult<object>.Fail("اطلاعات ارسالی معتبر نیست", 400);
+            }
 
             var conversation = new Conversation
             {
-                Title = request.Title,
-                Description = request.Description,
-                ConversationTypeId = request.ConversationTypeId,
+                UserId = request.UserId,
+                SupportAgentId = request.SupportAgentId,
+                SupportAgentName = request.SupportAgentName?.Trim(),
+                CreatedByName = request.CreatedByName?.Trim(),
+                Title = request.Title?.Trim(),
+                Description = request.Description?.Trim(),
                 CreatedAt = DateTime.Now,
                 IsActive = true
             };
@@ -37,10 +44,12 @@ public class ConversationService(
             var response = new ShowConversationResponse
             {
                 Id = conversation.Id,
+                UserId = conversation.UserId,
+                SupportAgentId = conversation.SupportAgentId,
+                SupportAgentName = conversation.SupportAgentName,
+                CreatedByName = conversation.CreatedByName,
                 Title = conversation.Title,
                 Description = conversation.Description,
-                ConversationTypeId = conversation.ConversationTypeId,
-                CreatedBy = conversation.CreatedBy,
                 CreatedAt = DateHelpers.ToPersianDate(conversation.CreatedAt),
                 LastMessageAt = DateHelpers.ToPersianDate(conversation.LastMessageAt),
                 IsActive = conversation.IsActive
@@ -71,8 +80,8 @@ public class ConversationService(
             if (conversation == null)
                 return ServiceResult<object>.Fail("گفتگو پیدا نشد", 404);
 
-            conversation.Title = request.Title;
-            conversation.Description = request.Description;
+            conversation.Title = request.Title?.Trim();
+            conversation.Description = request.Description?.Trim();
             conversation.IsActive = request.IsActive;
             conversation.UpdatedAt = DateTime.Now;
 
@@ -82,6 +91,10 @@ public class ConversationService(
             return ServiceResult<object>.Ok(new
             {
                 conversation.Id,
+                conversation.UserId,
+                conversation.SupportAgentId,
+                conversation.SupportAgentName,
+                conversation.CreatedByName,
                 conversation.Title,
                 conversation.Description,
                 conversation.IsActive,
@@ -128,11 +141,14 @@ public class ConversationService(
         }
     }
 
-    public async Task<ServiceResult<object>> GetAllAsync(ShowConversationRequest filter,int pageSize,int pageNumber)
+    public async Task<ServiceResult<object>> GetAllAsync(
+        ShowConversationRequest filter,
+        int pageSize,
+        int pageNumber)
     {
         try
         {
-              if(pageNumber <= 0 || pageSize <= 0 )
+            if (pageSize <= 0 || pageNumber <= 0)
                 return ServiceResult<object>.Fail("اطلاعات صفحه‌بندی معتبر نیست", 400);
 
             var query = _conversations.Get();
@@ -142,18 +158,18 @@ public class ConversationService(
                 if (filter.Ids?.Any() == true)
                     query = query.Where(x => filter.Ids.Contains(x.Id));
 
-                if (!string.IsNullOrWhiteSpace(filter.Title))
-                    query = query.Where(x => x.Title != null && x.Title.Contains(filter.Title));
+                if (filter.UserId.HasValue)
+                    query = query.Where(x => x.UserId == filter.UserId.Value);
 
-                if (filter.ConversationTypeId.HasValue)
+                if (filter.SupportAgentId.HasValue)
+                    query = query.Where(x => x.SupportAgentId == filter.SupportAgentId.Value);
+
+                if (!string.IsNullOrWhiteSpace(filter.Title))
                     query = query.Where(x =>
-                        x.ConversationTypeId == filter.ConversationTypeId.Value);
+                        x.Title != null && x.Title.Contains(filter.Title));
 
                 if (filter.IsActive.HasValue)
                     query = query.Where(x => x.IsActive == filter.IsActive.Value);
-
-                if (filter.CreatedBy.HasValue)
-                    query = query.Where(x => x.CreatedBy == filter.CreatedBy.Value);
             }
 
             var totalCount = await query.CountAsync();
@@ -167,10 +183,12 @@ public class ConversationService(
             var response = conversations.Select(x => new ShowConversationResponse
             {
                 Id = x.Id,
+                UserId = x.UserId,
+                SupportAgentId = x.SupportAgentId,
+                SupportAgentName = x.SupportAgentName,
+                CreatedByName = x.CreatedByName,
                 Title = x.Title,
                 Description = x.Description,
-                ConversationTypeId = x.ConversationTypeId,
-                CreatedBy = x.CreatedBy,
                 CreatedAt = DateHelpers.ToPersianDate(x.CreatedAt),
                 LastMessageAt = DateHelpers.ToPersianDate(x.LastMessageAt),
                 IsActive = x.IsActive
@@ -210,10 +228,12 @@ public class ConversationService(
             var response = new ShowConversationResponse
             {
                 Id = conversation.Id,
+                UserId = conversation.UserId,
+                SupportAgentId = conversation.SupportAgentId,
+                SupportAgentName = conversation.SupportAgentName,
+                CreatedByName = conversation.CreatedByName,
                 Title = conversation.Title,
                 Description = conversation.Description,
-                ConversationTypeId = conversation.ConversationTypeId,
-                CreatedBy = conversation.CreatedBy,
                 CreatedAt = DateHelpers.ToPersianDate(conversation.CreatedAt),
                 LastMessageAt = DateHelpers.ToPersianDate(conversation.LastMessageAt),
                 IsActive = conversation.IsActive

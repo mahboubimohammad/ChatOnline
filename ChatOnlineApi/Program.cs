@@ -1,4 +1,3 @@
-
 using ChatOnlineApi.Application.Services;
 using ChatOnlineApi.Domain.Base;
 using ChatOnlineApi.Infrastructure.Base;
@@ -90,7 +89,7 @@ builder.Services.AddScoped<
     UnitOfWork<ChatOnlineDbContext>>();
 
 // ---------- Specific Repositories ----------
-var repositoryAssembly = typeof(ConversationParticipantRepository).Assembly;
+var repositoryAssembly = typeof(ConversationRepository).Assembly;
 
 var repositoryTypes = repositoryAssembly.GetTypes()
     .Where(type =>
@@ -209,6 +208,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddHttpContextAccessor();
+
 // ---------- Swagger ----------
 builder.Services.AddSwaggerGen(c =>
 {
@@ -245,6 +245,7 @@ builder.Services.AddSwaggerGen(c =>
             [new OpenApiSecuritySchemeReference("Bearer", document)] = []
         });
 });
+
 // ---------- Build App ----------
 var app = builder.Build();
 

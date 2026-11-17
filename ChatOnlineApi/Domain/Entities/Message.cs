@@ -33,17 +33,30 @@ public partial class Message
     [Column(TypeName = "datetime")]
     public DateTime? EditedAt { get; set; }
 
+    [StringLength(200)]
+    public string? SenderName { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime? ReadAt { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime? DeliveredAt { get; set; }
+
+    public int? MessageReactionId { get; set; }
+
+    [ForeignKey("ConversationId")]
+    [InverseProperty("Messages")]
+    public virtual Conversation Conversation { get; set; } = null!;
+
     [InverseProperty("ReplyToMessage")]
     public virtual ICollection<Message> InverseReplyToMessage { get; set; } = new List<Message>();
 
     [InverseProperty("Message")]
     public virtual ICollection<MessageAttachment> MessageAttachments { get; set; } = new List<MessageAttachment>();
 
-    [InverseProperty("Message")]
-    public virtual ICollection<MessageReaction> MessageReactions { get; set; } = new List<MessageReaction>();
-
-    [InverseProperty("Message")]
-    public virtual ICollection<MessageReadReceipt> MessageReadReceipts { get; set; } = new List<MessageReadReceipt>();
+    [ForeignKey("MessageReactionId")]
+    [InverseProperty("Messages")]
+    public virtual ReactionType? MessageReaction { get; set; }
 
     [ForeignKey("MessageTypeId")]
     [InverseProperty("Messages")]
