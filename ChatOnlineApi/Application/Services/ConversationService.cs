@@ -1,4 +1,5 @@
-﻿using ChatOnlineApi.Application.Contracts;
+﻿
+using ChatOnlineApi.Application.Contracts;
 using ChatOnlineApi.Domain.Base;
 using ChatOnlineApi.Domain.Entities;
 using ChatOnlineApi.Domain.Interfaces;
@@ -13,6 +14,7 @@ namespace ChatOnlineApi.Application.Services;
 public class ConversationService(
     IUnitOfWork _unitOfWork,
     IConversationRepository _conversations,
+    ISupportAgentRepository _supportAgents,
     ILogger<ConversationService> _logger) : IConversationService
 {
     public async Task<ServiceResult<object>> AddAsync(AddConversationRequest request)
@@ -20,8 +22,7 @@ public class ConversationService(
         try
         {
             if (request == null ||
-                !request.UserId.HasValue || request.UserId.Value <= 0 ||
-                !request.SupportAgentId.HasValue || request.SupportAgentId.Value <= 0)
+                !request.UserId.HasValue || request.UserId.Value <= 0)
             {
                 return ServiceResult<object>.Fail("اطلاعات ارسالی معتبر نیست", 400);
             }
@@ -29,8 +30,8 @@ public class ConversationService(
             var conversation = new Conversation
             {
                 UserId = request.UserId,
-                SupportAgentId = request.SupportAgentId,
-                SupportAgentName = request.SupportAgentName?.Trim(),
+                SupportAgentId = null,
+                SupportAgentName = null,
                 CreatedByName = request.CreatedByName?.Trim(),
                 Title = request.Title?.Trim(),
                 Description = request.Description?.Trim(),
@@ -60,6 +61,65 @@ public class ConversationService(
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in AddConversation");
+
+            return ServiceResult<object>.Fail(
+                "خطای داخلی سرور رخ داده است", 500, ex.ToString());
+        }
+    }
+
+    public async Task<ServiceResult<object>> AssignSupportAgentAsync(int conversationId, int supportAgentId)
+    {
+        try
+        {
+            if (conversationId <= 0 || supportAgentId <= 0)
+                return ServiceResult<object>.Fail("شناسه معتبر نیست", 400);
+
+            var supportAgent = await _supportAgents
+                .Get(x => x.Id == supportAgentId && x.IsActive)
+                .FirstOrDefaultAsync();
+
+            if (supportAgent == null)
+                return ServiceResult<object>.Fail(
+                    "پشتیبان پیدا نشد ", 404);
+
+            var affectedRows = await _conversations
+                .Get(x =>
+                    x.Id == conversationId &&
+                    x.IsActive &&
+                    x.SupportAgentId == null)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(x => x.SupportAgentId, supportAgent.Id)
+                    .SetProperty(x => x.SupportAgentName, supportAgent.FullName)
+                    .SetProperty(x => x.UpdatedAt, DateTime.Now));
+
+            if (affectedRows == 0)
+            {
+                var conversation = await _conversations
+                    .Get(x => x.Id == conversationId)
+                    .FirstOrDefaultAsync();
+
+                if (conversation == null)
+                    return ServiceResult<object>.Fail("گفتگو پیدا نشد", 404);
+
+                if (!conversation.IsActive)
+                    return ServiceResult<object>.Fail(
+                        "گفتگو غیرفعال است", 400);
+
+                return ServiceResult<object>.Fail(
+                    "این گفتگو قبلاً به یک پشتیبان اختصاص داده شده است", 409);
+            }
+
+            return ServiceResult<object>.Ok(new
+            {
+                ConversationId = conversationId,
+                SupportAgentId = supportAgent.Id,
+                SupportAgentName = supportAgent.FullName,
+                Message = "گفتگو با موفقیت به پشتیبان اختصاص داده شد"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in AssignSupportAgent");
 
             return ServiceResult<object>.Fail(
                 "خطای داخلی سرور رخ داده است", 500, ex.ToString());
@@ -141,10 +201,7 @@ public class ConversationService(
         }
     }
 
-    public async Task<ServiceResult<object>> GetAllAsync(
-        ShowConversationRequest filter,
-        int pageSize,
-        int pageNumber)
+    public async Task<ServiceResult<object>> GetAllAsync(ShowConversationRequest filter, int pageSize, int pageNumber)
     {
         try
         {

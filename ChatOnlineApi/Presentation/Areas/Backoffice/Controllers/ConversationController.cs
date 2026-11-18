@@ -20,6 +20,15 @@ public class ConversationController(IConversationService _conversation) : Contro
     public async Task<IActionResult> Add([FromBody] AddConversationRequest request)
         => this.ToActionResult(await _conversation.AddAsync(request));
 
+
+    /// <summary>
+    /// اختصاص گفتگو به پشتیبان
+    /// </summary>
+    [HttpPost("AssignSupportAgent")]
+    [Authorize(Policy = "BackofficeBearerPolicy")]
+    public async Task<IActionResult> AssignSupportAgent([FromHeader] int conversationId,[FromHeader] int supportAgentId)
+        => this.ToActionResult(await _conversation.AssignSupportAgentAsync(conversationId, supportAgentId));
+
     /// <summary>
     /// ویرایش اطلاعات گفتگو
     /// </summary>
