@@ -6,8 +6,6 @@ public class ConversationDtos
     public class AddConversationRequest
     {
         public int? UserId { get; set; }
-        public int? SupportAgentId { get; set; }
-        public string? SupportAgentName { get; set; }
         public string? CreatedByName { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }

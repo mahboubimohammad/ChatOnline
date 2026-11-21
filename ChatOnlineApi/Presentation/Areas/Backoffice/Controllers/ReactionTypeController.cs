@@ -15,7 +15,7 @@ public class ReactionTypeController(IReactionTypeService _reactionType) : Contro
     /// <summary>
     /// دریافت لیست انواع ری‌اکشن
     /// </summary>
-    [HttpPost("GetAll")]
+    [HttpGet("GetAll")]
     [Authorize(Policy = "BackofficeBearerPolicy")]
     public async Task<IActionResult> GetAll([FromBody] ShowReactionTypeRequest request,[FromHeader] int pageSize,[FromHeader] int pageNumber)
         => this.ToActionResult(await _reactionType.GetAllAsync(request, pageSize, pageNumber));

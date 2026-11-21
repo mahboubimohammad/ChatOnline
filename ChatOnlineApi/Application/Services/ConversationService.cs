@@ -30,8 +30,6 @@ public class ConversationService(
             var conversation = new Conversation
             {
                 UserId = request.UserId,
-                SupportAgentId = null,
-                SupportAgentName = null,
                 CreatedByName = request.CreatedByName?.Trim(),
                 Title = request.Title?.Trim(),
                 Description = request.Description?.Trim(),
