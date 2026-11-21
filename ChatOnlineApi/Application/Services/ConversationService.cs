@@ -210,7 +210,7 @@ public class ConversationService(
 
             if (filter != null)
             {
-                if (filter.Ids?.Any() == true)
+                if (filter.Ids != null && filter.Ids.Count > 0)
                     query = query.Where(x => filter.Ids.Contains(x.Id));
 
                 if (filter.UserId.HasValue)
@@ -220,8 +220,7 @@ public class ConversationService(
                     query = query.Where(x => x.SupportAgentId == filter.SupportAgentId.Value);
 
                 if (!string.IsNullOrWhiteSpace(filter.Title))
-                    query = query.Where(x =>
-                        x.Title != null && x.Title.Contains(filter.Title));
+                    query = query.Where(x => x.Title != null && x.Title.Contains(filter.Title));
 
                 if (filter.IsActive.HasValue)
                     query = query.Where(x => x.IsActive == filter.IsActive.Value);
@@ -231,6 +230,7 @@ public class ConversationService(
 
             var conversations = await query
                 .OrderByDescending(x => x.LastMessageAt ?? x.CreatedAt)
+                .ThenByDescending(x => x.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
