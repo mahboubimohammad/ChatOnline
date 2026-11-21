@@ -266,7 +266,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("backoffice", new OpenApiInfo
     {
-        Title = "Chat Online Api",
+        Title = "backoffice Api",
         Version = "1.0"
     });
 
