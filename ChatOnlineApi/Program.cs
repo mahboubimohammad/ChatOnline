@@ -266,7 +266,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("backoffice", new OpenApiInfo
     {
-        Title = "backoffice Api",
+        Title = "Chat Online Api",
         Version = "1.0"
     });
 
@@ -334,7 +334,7 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint(
         swaggerConfig["BackofficeSwaggerAddress"]!,
-        "Chat Online Api 1.0");
+        "backoffice Api 1.0");
 
     c.InjectStylesheet(
         swaggerConfig["SwaggerCssAddress"]!);

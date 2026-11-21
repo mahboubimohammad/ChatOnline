@@ -1,0 +1,242 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ChatOnlineApi</name>
+    </assembly>
+    <members>
+        <member name="P:ChatOnlineApi.Application.DTOs.AuthDtos.RegisterAccountRequest.MerchantQrCode">
+            <summary>Set by the Merchant-branded pay page (same opaque code it passed to InitialSignUp). When present the
+            platform-branded welcome SMS is suppressed — this buyer came in through a Merchant's QR and must not learn
+            which platform is behind it.</summary>
+        </member>
+        <member name="P:ChatOnlineApi.Domain.Base.IUnitOfWork.Context">
+            <summary>
+            دسترسی فقط‑خواندنی به DbContext جاری برای استفاده در EF یا Dapper
+            </summary>
+        </member>
+        <member name="P:ChatOnlineApi.Domain.Base.IUnitOfWork.HasActiveTransaction">
+            <summary>
+            آیا تراکنش فعال وجود دارد؟
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Domain.Base.IUnitOfWork.ExecuteInTransactionAsync``1(System.Func{System.Threading.Tasks.Task{``0}})">
+            <summary>
+            اجرای تابع (Action) داخل تراکنش با الگوی ExecutionStrategy برای هندل Failover
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Domain.Base.IUnitOfWork.BeginTransactionAsync(System.Threading.CancellationToken)">
+            <summary>
+            آغاز تراکنش پایگاه داده
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Domain.Base.IUnitOfWork.CommitAsync(System.Threading.CancellationToken)">
+            <summary>
+            Commit کردن تراکنش فعال
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Domain.Base.IUnitOfWork.RollbackAsync(System.Threading.CancellationToken)">
+            <summary>
+            Rollback تراکنش فعال
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Domain.Base.IUnitOfWork.SaveChangesAsync(System.Threading.CancellationToken)">
+            <summary>
+            ذخیره تغییرات EF
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Domain.Base.IUnitOfWork.IsUniqueViolation(Microsoft.EntityFrameworkCore.DbUpdateException)">
+            <summary>
+            تشخیص خطای Unique Constraint در SQL Server (کد خطاهای 2601 و 2627)
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Infrastructure.Base.GenericRepository`1.TruncateAsync">
+            <summary>
+            حذف تمامی آیتم‌ها از دیتابیس
+            </summary>
+        </member>
+        <member name="P:ChatOnlineApi.Infrastructure.Configuration.YaghutOptions.Protocol">
+            <summary>"Soap" (default) or "Rest" — selects which IYaghutService implementation is used.</summary>
+        </member>
+        <member name="P:ChatOnlineApi.Infrastructure.Configuration.YaghutOptions.RestEndpoints">
+            <summary>
+            REST path per operation (key = ExternalServiceNames.Yaghut* constant), relative to RestBaseUrl.
+            Paths are taken from the official "Rest URL" entries of the Yaghut service documentation
+            (yaghut.day24.ir/yaghut/dey/doc); override in appsettings if the deployment differs.
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.ConversationController.Add(ChatOnlineApi.Application.DTOs.ConversationDtos.AddConversationRequest)">
+            <summary>
+            ایجاد گفتگوی جدید
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.ConversationController.AssignSupportAgent(System.Int32,System.Int32)">
+            <summary>
+            اختصاص گفتگو به پشتیبان
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.ConversationController.Edit(ChatOnlineApi.Application.DTOs.ConversationDtos.EditConversationRequest)">
+            <summary>
+            ویرایش اطلاعات گفتگو
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.ConversationController.Delete(System.Int32)">
+            <summary>
+            حذف گفتگو
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.ConversationController.Get(System.Int32)">
+            <summary>
+            دریافت اطلاعات یک گفتگو
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.ConversationController.GetAll(ChatOnlineApi.Application.DTOs.ConversationDtos.ShowConversationRequest,System.Int32,System.Int32)">
+            <summary>
+            دریافت لیست گفتگوها
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.MessageAttachmentController.Add(ChatOnlineApi.Application.DTOs.MessageAttachmentDtos.AddMessageAttachmentRequest)">
+            <summary>
+            افزودن پیوست به پیام
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.MessageAttachmentController.Edit(ChatOnlineApi.Application.DTOs.MessageAttachmentDtos.EditMessageAttachmentRequest)">
+            <summary>
+            ویرایش اطلاعات پیوست
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.MessageAttachmentController.Delete(System.Int32)">
+            <summary>
+            حذف پیوست
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.MessageAttachmentController.Get(System.Int32)">
+            <summary>
+            دریافت اطلاعات یک پیوست
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.MessageAttachmentController.GetAll(ChatOnlineApi.Application.DTOs.MessageAttachmentDtos.ShowMessageAttachmentRequest,System.Int32,System.Int32)">
+            <summary>
+            دریافت لیست پیوست‌ها
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.MessageController.Add(ChatOnlineApi.Application.DTOs.MessageDtos.AddMessageRequest)">
+            <summary>
+            ارسال پیام جدید
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.MessageController.Edit(ChatOnlineApi.Application.DTOs.MessageDtos.EditMessageRequest)">
+            <summary>
+            ویرایش پیام
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.MessageController.Delete(System.Int32)">
+            <summary>
+            حذف پیام
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.MessageController.Get(System.Int32)">
+            <summary>
+            دریافت اطلاعات یک پیام
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.MessageController.GetAll(ChatOnlineApi.Application.DTOs.MessageDtos.ShowMessageRequest,System.Int32,System.Int32)">
+            <summary>
+            دریافت لیست پیام‌ها
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.MessageTypeController.GetAll">
+            <summary>
+            دریافت لیست انواع پیام
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.MessageTypeController.DropDown">
+            <summary>
+            دریافت لیست انواع پیام 
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.ReactionTypeController.GetAll(ChatOnlineApi.Application.DTOs.ReactionTypeDtos.ShowReactionTypeRequest,System.Int32,System.Int32)">
+            <summary>
+            دریافت لیست انواع ری‌اکشن
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.ReactionTypeController.DropDown">
+            <summary>
+            دریافت لیست انواع ری‌اکشن 
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.SupportAgentController.Add(ChatOnlineApi.Application.DTOs.AddSupportAgentRequest)">
+            <summary>
+            افزودن  پشتیبانی
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.SupportAgentController.Get">
+            <summary>
+            دریافت اطلاعات  پشتیبانی
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.UserPresenceController.GetAll(ChatOnlineApi.Application.DTOs.UserPresenceDtos.ShowUserPresenceRequest,System.Int32,System.Int32)">
+            <summary>
+            دریافت وضعیت حضور کاربران
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.UserPresenceController.Get(System.Int32)">
+            <summary>
+            دریافت وضعیت حضور یک کاربر
+            </summary>
+        </member>
+        <member name="M:ChatOnlineApi.Presentation.Areas.Backoffice.Controllers.UserPresenceController.UpdatePresence(ChatOnlineApi.Application.DTOs.UserPresenceDtos.UpdateUserPresenceRequest)">
+            <summary>
+            به‌روزرسانی وضعیت حضور کاربر
+            </summary>
+        </member>
+        <member name="T:Program">
+            <summary>
+            Auto-generated public partial Program class for top-level statement apps.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Type)">
+            <summary>
+            Generates a documentation comment ID for a type.
+            Example: T:Namespace.Outer+Inner`1 becomes T:Namespace.Outer.Inner`1
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Reflection.PropertyInfo)">
+            <summary>
+            Generates a documentation comment ID for a property.
+            Example: P:Namespace.ContainingType.PropertyName or for an indexer P:Namespace.ContainingType.Item(System.Int32)
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Type,System.String)">
+            <summary>
+            Generates a documentation comment ID for a property given its container type and property name.
+            Example: P:Namespace.ContainingType.PropertyName
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Reflection.MethodInfo)">
+            <summary>
+            Generates a documentation comment ID for a method (or constructor).
+            For example:
+              M:Namespace.ContainingType.MethodName(ParamType1,ParamType2)~ReturnType
+              M:Namespace.ContainingType.#ctor(ParamType)
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.GetTypeDocId(System.Type,System.Boolean,System.Boolean)">
+            <summary>
+            Generates a documentation ID string for a type.
+            This method handles nested types (replacing '+' with '.'),
+            generic types, arrays, pointers, by-ref types, and generic parameters.
+            The <paramref name="includeGenericArguments"/> flag controls whether
+            constructed generic type arguments are emitted, while <paramref name="omitGenericArity"/>
+            controls whether the generic arity marker (e.g. "`1") is appended.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.NormalizeDocId(System.String)">
+            <summary>
+            Normalizes a documentation comment ID to match the compiler-style format.
+            Strips the return type suffix for ordinary methods but retains it for conversion operators.
+            </summary>
+            <param name="docId">The documentation comment ID to normalize.</param>
+            <returns>The normalized documentation comment ID.</returns>
+        </member>
+    </members>
+</doc>
